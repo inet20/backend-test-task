@@ -1,13 +1,25 @@
 services:
-    sio_test:
+    sio_dev:
         user: app
         build:
             context: .
             args:
-                USER_ID: ${USER_ID}
+                USER_ID: 1000
         ports:
             - "8337:8337"
         volumes:
             - .:/app:rw
+    db:
+        image: postgres:${POSTGRES_VERSION:-16}-alpine
+        volumes:
+            - db_data:/var/lib/postgresql/dbdata
         environment:
-            - APP_ENV=dev
+            POSTGRES_PASSWORD: test
+            POSTGRES_USER: test
+            POSTGRES_DB: test_db
+        ports:
+            - "5432:5432"
+
+volumes:
+    db_data: ~
+

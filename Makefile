@@ -1,8 +1,8 @@
 USER_ID=$(shell id -u)
 
 DC = @USER_ID=$(USER_ID) docker compose
-DC_RUN = ${DC} run --rm sio_test
-DC_EXEC = ${DC} exec sio_test
+DC_RUN = ${DC} run --rm sio_dev
+DC_EXEC = ${DC} exec sio_dev
 
 PHONY: help
 .DEFAULT_GOAL := help
@@ -10,7 +10,7 @@ PHONY: help
 help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-init: down build install up success-message console ## Initialize environment
+init: down build install up wait migration fixtures success-message console ## Initialize environment
 
 build: ## Build services.
 	${DC} build $(c)
@@ -34,6 +34,15 @@ console: ## Login in console.
 
 install:
 	${DC_RUN} composer install
+
+wait:
+	sleep 1
+
+migration:
+	${DC_RUN} php /app/bin/console do:mi:mi -n
+
+fixtures:
+	${DC_RUN} php /app/bin/console do:fi:lo -n
 
 success-message:
 	@echo "You can now access the application at http://localhost:8337"
